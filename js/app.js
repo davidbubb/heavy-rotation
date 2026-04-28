@@ -9,6 +9,7 @@
  *   - Manages UI state (loading, errors, period switching)
  */
 
+// IIFE pattern: creates a module scope so helper functions do not leak globally.
 const App = (() => {
   // -------------------------------------------------------------------------
   // Constants
@@ -51,6 +52,7 @@ const App = (() => {
   // Application state
   // -------------------------------------------------------------------------
 
+  // const locks the variable name, but object properties can still be updated.
   const state = {
     username:    '',
     apiKey:      '',
@@ -141,6 +143,7 @@ const App = (() => {
   // -------------------------------------------------------------------------
 
   /** Triggered when the user clicks "Load My Stats". */
+  // async lets us use await for API calls while keeping this code readable.
   async function handleLoadClick() {
     const username = els.inputUsername.value.trim();
     const apiKey   = els.inputApiKey.value.trim();
@@ -201,6 +204,7 @@ const App = (() => {
 
     try {
       // Fetch user profile and top-level stats in parallel
+      // Promise.all runs independent requests at the same time to reduce wait time.
       const [userInfo, artists, tracks] = await Promise.all([
         LastFmAPI.getUserInfo(state.username, state.apiKey),
         LastFmAPI.getTopArtists(state.username, state.apiKey, state.period, 10),
@@ -283,6 +287,7 @@ const App = (() => {
     );
 
     // Aggregate tag scores: each artist contributes its top 5 tags
+    // Map stores key/value pairs and is great for counting totals by name.
     const tagMap = new Map();
 
     for (const tags of tagArrays) {
@@ -294,6 +299,7 @@ const App = (() => {
     }
 
     // Sort descending and filter out generic/unwanted tags
+    // Set makes fast membership checks when filtering unwanted tag names.
     const EXCLUDED = new Set(['seen live', 'under 2000 listeners', 'all', 'favorites', 'favourite']);
     const sorted = [...tagMap.entries()]
       .filter(([name]) => !EXCLUDED.has(name) && name.length > 1)

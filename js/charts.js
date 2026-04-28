@@ -10,6 +10,7 @@
  * recreated whenever new data is loaded.
  */
 
+// IIFE gives us a private module so only selected functions are public.
 const Charts = (() => {
   // -------------------------------------------------------------------------
   // Design tokens — keep in sync with CSS custom properties
@@ -18,6 +19,7 @@ const Charts = (() => {
   const FONT_FAMILY = "'Segoe UI', system-ui, sans-serif";
 
   // References to active Chart.js instances — kept so we can destroy them
+  // let is used because each variable will be replaced with a new chart instance over time.
   let dailyChartInstance   = null;
   let genreChartInstance   = null;
   let artistBarChartInstance = null;

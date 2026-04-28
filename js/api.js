@@ -8,6 +8,7 @@
  * Last.fm API docs: https://www.last.fm/api
  */
 
+// IIFE means this function runs immediately and returns one private module object.
 const LastFmAPI = (() => {
   /** Base URL for all Last.fm API requests. */
   const BASE_URL = 'https://ws.audioscrobbler.com/2.0/';
@@ -20,6 +21,7 @@ const LastFmAPI = (() => {
    * @param {Object} params   Additional query parameters (apiKey, user, …)
    * @returns {Promise<Object>}
    */
+  // async makes this function return a Promise automatically.
   async function call(method, params) {
     const url = new URL(BASE_URL);
 
@@ -35,6 +37,7 @@ const LastFmAPI = (() => {
       }
     }
 
+    // Use let when a variable will be reassigned later; const is for one-time bindings.
     let response;
     try {
       response = await fetch(url.toString());
@@ -43,6 +46,7 @@ const LastFmAPI = (() => {
     }
 
     // Parse JSON regardless of status so we can read Last.fm error bodies
+    // await pauses only this async function until the Promise resolves.
     const data = await response.json();
 
     // Last.fm signals errors with a top-level `error` property
@@ -85,6 +89,7 @@ const LastFmAPI = (() => {
       period,
       limit,
     });
+    // ?. avoids errors if a property is missing, and ?? picks [] only for null/undefined.
     return data.topartists?.artist ?? [];
   }
 
@@ -120,10 +125,12 @@ const LastFmAPI = (() => {
    */
   async function getRecentTracks(username, apiKey, from, to, maxTracks = 500) {
     const pageLimit = 200; // Last.fm max per request
+    // let is used here because these values change as pagination continues.
     let allTracks = [];
     let page = 1;
     let totalPages = 1;
 
+    // do...while runs once first, then keeps looping while the condition is true.
     do {
       const data = await call('user.getRecentTracks', {
         user: username,
@@ -182,6 +189,7 @@ const LastFmAPI = (() => {
    iTunes Search API — used to fetch artwork since Last.fm removed images.
    No API key required; CORS is open on the Apple endpoint.
    ========================================================================== */
+// Another IIFE module: internals stay private except what we return at the end.
 const ItunesAPI = (() => {
   const BASE_URL = 'https://itunes.apple.com/search';
 
@@ -194,6 +202,7 @@ const ItunesAPI = (() => {
    * @returns {Promise<Object>}
    */
   function searchJsonp(params) {
+    // Promise wraps callback-style code so callers can use await instead of nested callbacks.
     return new Promise((resolve, reject) => {
       const callbackName = `itunes_cb_${Date.now()}_${Math.random().toString(36).slice(2)}`;
       const url = new URL(BASE_URL);
